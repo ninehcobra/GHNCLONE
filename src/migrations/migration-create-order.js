@@ -8,35 +8,44 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            pickName: {
+            userId: {
+                type: Sequelize.INTEGER
+            },
+            senderName: {
                 type: Sequelize.STRING
             },
-            pickMoney: {
+            senderAddress: {
                 type: Sequelize.STRING
             },
-            pickAddress: {
+            senderPhone: {
                 type: Sequelize.STRING
             },
-            pickPhone: {
+            senderMail: {
                 type: Sequelize.STRING
             },
-            pickMail: {
+            receiverName: {
                 type: Sequelize.STRING
             },
-            recName: {
+            receiverAddress: {
                 type: Sequelize.STRING
             },
-            recAddress: {
+            receiverPhone: {
                 type: Sequelize.STRING
             },
-            recPhone: {
+            receiverMail: {
                 type: Sequelize.STRING
             },
-            recEmail: {
+            weight: {
                 type: Sequelize.STRING
             },
-            recNote: {
+            value: {
                 type: Sequelize.STRING
+            },
+            note: {
+                type: Sequelize.STRING
+            },
+            deliveryPersonId: {
+                type: Sequelize.INTEGER
             },
             createdAt: {
                 allowNull: false,
