@@ -239,6 +239,32 @@ let getProvinceService=()=>{
     })
 }
 
+let getDistrictService=(provinceId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!provinceId) {
+                resolve({
+                    errCode: 1,
+                    message: "Missing required parameters"
+                })
+            }
+            else {
+                let res = {}
+                let allcode = await db.District.findAll({
+                    where: { provinceId: provinceId }
+                });
+                res.errCode = 0;
+                res.data = allcode
+                resolve(res)
+            }
+
+
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
 module.exports = {
     handleUserLogin: handleUserLogin,
     getAllUsers: getAllUsers,
@@ -246,5 +272,6 @@ module.exports = {
     deleteUser: deleteUser,
     updateUserData: updateUserData,
     getAllCodeService: getAllCodeService,
-    getProvinceService:getProvinceService
+    getProvinceService:getProvinceService,
+    getDistrictService:getDistrictService
 }

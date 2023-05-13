@@ -27,6 +27,7 @@ let initWebRoutes = (app) => {
 
     router.get("/api/allcode", userController.getAllCode)
     router.get("/api/province",userController.getProvince)
+    router.get("/api/district",userController.getDistrict)
 
 
     return app.use("/", router)
