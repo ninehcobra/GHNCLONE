@@ -225,11 +225,26 @@ let getAllCodeService = (type) => {
     })
 }
 
+let getProvinceService=()=>{
+    return new Promise( async(resolve,reject)=>{
+        try {
+            let data= await db.Province.findAll()
+            let res={}
+            res.errCode=0;
+            res.data=data
+            resolve(res)
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
 module.exports = {
     handleUserLogin: handleUserLogin,
     getAllUsers: getAllUsers,
     createNewUser: createNewUser,
     deleteUser: deleteUser,
     updateUserData: updateUserData,
-    getAllCodeService: getAllCodeService
+    getAllCodeService: getAllCodeService,
+    getProvinceService:getProvinceService
 }
