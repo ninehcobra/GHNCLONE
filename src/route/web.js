@@ -26,8 +26,10 @@ let initWebRoutes = (app) => {
     router.delete("/api/delete-user", userController.handleDeleteUser)
 
     router.get("/api/allcode", userController.getAllCode)
-    router.get("/api/province",userController.getProvince)
-    router.get("/api/district",userController.getDistrict)
+    router.get("/api/province", userController.getProvince)
+    router.get("/api/district", userController.getDistrict)
+
+    router.post("/api/create-warehouse", userController.handleCreateNewWarehouse)
 
 
     return app.use("/", router)

@@ -68,21 +68,21 @@ let getAllCode = async (req, res) => {
     }
 }
 
-let getProvince=async(req,res)=>{
-try {
-    let data=await userService.getProvinceService();
-    return res.status(200).json(data)
-    
-} catch (error) {
-    console.log("Get all code error:", error)
+let getProvince = async (req, res) => {
+    try {
+        let data = await userService.getProvinceService();
+        return res.status(200).json(data)
+
+    } catch (error) {
+        console.log("Get all code error:", error)
         return res.status(200).json({
             errCode: -1,
             message: 'Error from server'
         })
-}
+    }
 }
 
-let getDistrict=async(req,res)=>{
+let getDistrict = async (req, res) => {
     try {
         let data = await userService.getDistrictService(req.query.provinceId);
         return res.status(200).json(data)
@@ -95,6 +95,12 @@ let getDistrict=async(req,res)=>{
     }
 }
 
+let handleCreateNewWarehouse = async (req, res) => {
+    let message = await userService.createNewWarehouse(req.body);
+    console.log(message);
+    return res.status(200).json(message)
+}
+
 module.exports = {
     handleLogin: handleLogin,
     handleGetAllUser: handleGetAllUser,
@@ -102,6 +108,7 @@ module.exports = {
     handleEditUser: handleEditUser,
     handleDeleteUser: handleDeleteUser,
     getAllCode: getAllCode,
-    getProvince:getProvince,
-    getDistrict:getDistrict
+    getProvince: getProvince,
+    getDistrict: getDistrict,
+    handleCreateNewWarehouse: handleCreateNewWarehouse,
 }

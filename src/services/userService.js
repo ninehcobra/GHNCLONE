@@ -32,6 +32,8 @@ let handleUserLogin = (email, password) => {
                     if (check) {
                         userData.errCode = 0;
                         userData.errMessage = 'OK'
+
+                        delete user.password
                         userData.user = user
                     }
                     else {
@@ -121,8 +123,9 @@ let createNewUser = (data) => {
                     lastName: data.lastname,
                     address: data.address,
                     phoneNumber: data.phonenumber,
-                    gender: data.gender === "1" ? true : false,
+                    gender: data.gender,
                     roleId: data.roleid,
+
                 })
                 resolve({
                     errCode: 0,
@@ -225,13 +228,13 @@ let getAllCodeService = (type) => {
     })
 }
 
-let getProvinceService=()=>{
-    return new Promise( async(resolve,reject)=>{
+let getProvinceService = () => {
+    return new Promise(async (resolve, reject) => {
         try {
-            let data= await db.Province.findAll()
-            let res={}
-            res.errCode=0;
-            res.data=data
+            let data = await db.Province.findAll()
+            let res = {}
+            res.errCode = 0;
+            res.data = data
             resolve(res)
         } catch (error) {
             reject(error)
@@ -239,7 +242,7 @@ let getProvinceService=()=>{
     })
 }
 
-let getDistrictService=(provinceId) => {
+let getDistrictService = (provinceId) => {
     return new Promise(async (resolve, reject) => {
         try {
             if (!provinceId) {
@@ -265,6 +268,38 @@ let getDistrictService=(provinceId) => {
     })
 }
 
+let getProvinceName = async (id) => {
+    let districtData = await db.District.findOne({ where: { id: id } })
+    let provinceData = await db.Province.findOne({ where: { id: districtData.provinceId } })
+    return provinceData.name
+}
+
+let createNewWarehouse = (data) => {
+    return new Promise(async (resolve, reject) => {
+        let name = await getProvinceName(data.districtId)
+        try {
+            await db.Warehouse.create({
+                name: name,
+                address: data.address,
+                phoneNumber: data.phoneNumber,
+                managerId: data.managerId,
+                capacity: data.capacity,
+                districtId: data.districtId
+            })
+            resolve({
+                errCode: 0,
+                message: 'OK'
+            })
+
+
+
+
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
 module.exports = {
     handleUserLogin: handleUserLogin,
     getAllUsers: getAllUsers,
@@ -272,6 +307,7 @@ module.exports = {
     deleteUser: deleteUser,
     updateUserData: updateUserData,
     getAllCodeService: getAllCodeService,
-    getProvinceService:getProvinceService,
-    getDistrictService:getDistrictService
+    getProvinceService: getProvinceService,
+    getDistrictService: getDistrictService,
+    createNewWarehouse: createNewWarehouse
 }

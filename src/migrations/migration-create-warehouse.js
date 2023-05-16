@@ -23,6 +23,9 @@ module.exports = {
             capacity: {
                 type: Sequelize.INTEGER
             },
+            districtId: {
+                type: Sequelize.INTEGER
+            },
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE
