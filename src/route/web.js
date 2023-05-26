@@ -30,6 +30,12 @@ let initWebRoutes = (app) => {
     router.get("/api/district", userController.getDistrict)
 
     router.post("/api/create-warehouse", userController.handleCreateNewWarehouse)
+    router.get("/api/fee", userController.getFee)
+    router.post("/api/create-order", userController.handleCreateOrder)
+
+    router.get("/api/get-user-order", userController.handleGetUserOrder)
+
+    router.get("")
 
 
     return app.use("/", router)
