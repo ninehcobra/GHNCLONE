@@ -35,7 +35,7 @@ let initWebRoutes = (app) => {
 
     router.get("/api/get-user-order", userController.handleGetUserOrder)
 
-    router.get("")
+    router.get("/api/get-order-reception", userController.handleGetOrderReception)
 
 
     return app.use("/", router)

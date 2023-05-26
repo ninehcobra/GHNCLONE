@@ -140,6 +140,19 @@ let handleGetUserOrder = async (req, res) => {
     }
 }
 
+let handleGetOrderReception = async (req, res) => {
+    try {
+        let data = await userService.getUserOrderReceptionService();
+        return res.status(200).json(data)
+    } catch (error) {
+        console.log("Get order reception error:", error)
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server'
+        })
+    }
+}
+
 module.exports = {
     handleLogin: handleLogin,
     handleGetAllUser: handleGetAllUser,
@@ -152,5 +165,6 @@ module.exports = {
     handleCreateNewWarehouse: handleCreateNewWarehouse,
     getFee: getFee,
     handleCreateOrder: handleCreateOrder,
-    handleGetUserOrder: handleGetUserOrder
+    handleGetUserOrder: handleGetUserOrder,
+    handleGetOrderReception: handleGetOrderReception
 }

@@ -401,6 +401,25 @@ let getUserOrderService = (id) => {
     })
 }
 
+let getUserOrderReceptionService = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let res = {}
+            let order = await db.Order.findAll({
+                where: {
+                    status: 'S2'
+                }
+            });
+            res.errCode = 0;
+            res.data = order
+            resolve(res)
+
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
 module.exports = {
     handleUserLogin: handleUserLogin,
     getAllUsers: getAllUsers,
@@ -413,5 +432,6 @@ module.exports = {
     createNewWarehouse: createNewWarehouse,
     getFeeService: getFeeService,
     createOrder: createOrder,
-    getUserOrderService: getUserOrderService
+    getUserOrderService: getUserOrderService,
+    getUserOrderReceptionService: getUserOrderReceptionService
 }
