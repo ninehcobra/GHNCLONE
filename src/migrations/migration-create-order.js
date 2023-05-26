@@ -1,7 +1,10 @@
 'use strict';
+
+const { BLOB } = require("sequelize");
+
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable('oders', {
+        await queryInterface.createTable('orders', {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -11,16 +14,28 @@ module.exports = {
             userId: {
                 type: Sequelize.INTEGER
             },
-            senderName: {
+            takeName: {
                 type: Sequelize.STRING
             },
-            senderAddress: {
+            takeAddress: {
                 type: Sequelize.STRING
             },
-            senderPhone: {
+            takePhone: {
                 type: Sequelize.STRING
             },
-            senderMail: {
+            takeProvince: {
+                type: Sequelize.STRING
+            },
+            receiverName: {
+                type: Sequelize.STRING
+            },
+            takeDistrict: {
+                type: Sequelize.STRING
+            },
+            takeTime: {
+                type: Sequelize.STRING
+            },
+            receivePhone: {
                 type: Sequelize.STRING
             },
             receiverName: {
@@ -29,23 +44,41 @@ module.exports = {
             receiverAddress: {
                 type: Sequelize.STRING
             },
-            receiverPhone: {
+            receiveProvince: {
                 type: Sequelize.STRING
             },
-            receiverMail: {
+            receiveDistrict: {
+                type: Sequelize.INTEGER
+            },
+            arrProduct: {
+                type: Sequelize.JSON
+            },
+            imagePackage: {
+                type: Sequelize.BLOB('long')
+            },
+            totalWeight: {
+                type: Sequelize.INTEGER
+            },
+            CODCost: {
+                type: Sequelize.INTEGER
+            },
+            totalCost: {
+                type: Sequelize.INTEGER
+            },
+            noteOption: {
                 type: Sequelize.STRING
             },
-            weight: {
-                type: Sequelize.STRING
-            },
-            value: {
-                type: Sequelize.STRING
+            fee: {
+                type: Sequelize.INTEGER
             },
             note: {
                 type: Sequelize.STRING
             },
-            deliveryPersonId: {
-                type: Sequelize.INTEGER
+            payOption: {
+                type: Sequelize.STRING
+            },
+            status: {
+                type: Sequelize.STRING
             },
             createdAt: {
                 allowNull: false,
@@ -58,6 +91,6 @@ module.exports = {
         });
     },
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable('oders');
+        await queryInterface.dropTable('orders');
     }
 };

@@ -101,6 +101,45 @@ let handleCreateNewWarehouse = async (req, res) => {
     return res.status(200).json(message)
 }
 
+let getFee = async (req, res) => {
+    try {
+        let data = await userService.getFeeService();
+        return res.status(200).json(data)
+    } catch (error) {
+        console.log("Get fee error:", error)
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server'
+        })
+    }
+}
+
+let handleCreateOrder = async (req, res) => {
+    try {
+        let message = await userService.createOrder(req.body);
+        return res.status(200).json(message)
+
+    } catch (error) {
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server'
+        })
+    }
+}
+
+let handleGetUserOrder = async (req, res) => {
+    try {
+        let data = await userService.getUserOrderService(req.body.id);
+        return res.status(200).json(data)
+    } catch (error) {
+        console.log("Get User order error:", error)
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server'
+        })
+    }
+}
+
 module.exports = {
     handleLogin: handleLogin,
     handleGetAllUser: handleGetAllUser,
@@ -111,4 +150,7 @@ module.exports = {
     getProvince: getProvince,
     getDistrict: getDistrict,
     handleCreateNewWarehouse: handleCreateNewWarehouse,
+    getFee: getFee,
+    handleCreateOrder: handleCreateOrder,
+    handleGetUserOrder: handleGetUserOrder
 }

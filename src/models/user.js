@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      User.hasMany(models.Order, { foreignKey: 'userId' })
     }
   };
   User.init({
@@ -23,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     gender: DataTypes.STRING,
     roleId: DataTypes.STRING,
     positionId: DataTypes.STRING,
-    image: DataTypes.STRING,
+    image: DataTypes.BLOB,
   }, {
     sequelize,
     modelName: 'User',

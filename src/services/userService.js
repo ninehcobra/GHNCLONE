@@ -307,6 +307,100 @@ let createNewWarehouse = (data) => {
     })
 }
 
+let getFeeService = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let res = {}
+            let fee = await db.Fee.findAll();
+            res.errCode = 0;
+            res.data = fee
+            resolve(res)
+
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
+let createOrder = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            //create
+            if (data) {
+                await db.Order.create({
+                    userId: data.userId,
+                    takeName: data.takeName,
+                    takeAddress: data.takeAddress,
+                    takePhone: data.takePhone,
+                    takeProvince: data.takeProvince,
+                    takeDistrict: data.takeDistrict,
+                    takeTime: data.takeTime,
+                    receivePhone: data.receivePhone,
+                    receiverName: data.receiverName,
+                    receiverAddress: data.receiverAddress,
+                    receiveProvince: data.receiveProvince,
+                    receiveDistrict: data.receiveDistrict,
+                    arrProduct: data.arrProduct,
+                    imagePackage: data.imagePackage,
+                    totalWeight: data.totalWeight,
+                    CODCost: data.CODCost,
+                    totalCost: data.totalCost,
+                    note: data.note,
+                    noteOption: data.noteOption,
+                    payOption: data.payOption,
+                    fee: data.fee,
+                    status: 'S2'
+                })
+                resolve({
+                    errCode: 0,
+                    message: 'OK'
+                })
+            }
+            else resolve({
+                errCode: 1,
+                message: 'Missing parameters'
+            })
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
+let getUserOrderService = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!id) {
+                resolve({
+                    errCode: 1,
+                    message: 'Missing required parameter!'
+                })
+            } else {
+
+                let data = await db.User.findAll({
+                    where: {
+                        id: id
+                    },
+                    attributes: {
+                        exclude: ['password', 'image', 'id', 'email', 'firstName', 'lastName', 'address', 'phoneNumber', 'gender', 'roleId', 'positionId', 'createdAt', 'updatedAt']
+                    },
+                    include: [
+                        { model: db.Order, attributes: { exclude: 'imagePackage' } }
+                    ],
+                    raw: true,
+                    nest: true
+                })
+
+                resolve({
+                    errCode: 0,
+                    data: data
+                })
+            }
+        } catch (error) {
+            reject(e)
+        }
+    })
+}
+
 module.exports = {
     handleUserLogin: handleUserLogin,
     getAllUsers: getAllUsers,
@@ -316,5 +410,8 @@ module.exports = {
     getAllCodeService: getAllCodeService,
     getProvinceService: getProvinceService,
     getDistrictService: getDistrictService,
-    createNewWarehouse: createNewWarehouse
+    createNewWarehouse: createNewWarehouse,
+    getFeeService: getFeeService,
+    createOrder: createOrder,
+    getUserOrderService: getUserOrderService
 }
