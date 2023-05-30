@@ -153,6 +153,44 @@ let handleGetOrderReception = async (req, res) => {
     }
 }
 
+let handleUpdateProductStatus = async (req, res) => {
+    try {
+        let message = await userService.updateProductStatus(req.body);
+        return res.status(200).json(message)
+    } catch (error) {
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server'
+        })
+    }
+}
+
+let handleGetOrderHistory = async (req, res) => {
+    try {
+        let data = await userService.getOrderHistory(req.query.id);
+        return res.status(200).json(data)
+    } catch (error) {
+        console.log("Get order reception error:", error)
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server'
+        })
+    }
+}
+
+let handleGetAddressName = async (req, res) => {
+    try {
+        let data = await userService.getAddressName(req.query.id);
+        return res.status(200).json(data)
+    } catch (error) {
+        console.log("Get Address name error:", error)
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server'
+        })
+    }
+}
+
 module.exports = {
     handleLogin: handleLogin,
     handleGetAllUser: handleGetAllUser,
@@ -166,5 +204,8 @@ module.exports = {
     getFee: getFee,
     handleCreateOrder: handleCreateOrder,
     handleGetUserOrder: handleGetUserOrder,
-    handleGetOrderReception: handleGetOrderReception
+    handleGetOrderReception: handleGetOrderReception,
+    handleUpdateProductStatus: handleUpdateProductStatus,
+    handleGetOrderHistory: handleGetOrderHistory,
+    handleGetAddressName: handleGetAddressName
 }

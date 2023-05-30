@@ -1,6 +1,7 @@
 import db from "../models"
 import bcrypt from 'bcryptjs';
 
+
 var salt = bcrypt.genSaltSync(10);
 
 let hashUserPassword = (password) => {
@@ -278,7 +279,11 @@ let getDistrictService = (provinceId) => {
 let getProvinceName = async (id) => {
     let districtData = await db.District.findOne({ where: { id: id } })
     let provinceData = await db.Province.findOne({ where: { id: districtData.provinceId } })
-    return provinceData.name
+    let res = {
+        districtName: districtData.name,
+        provinceName: provinceData.name
+    }
+    return res
 }
 
 let createNewWarehouse = (data) => {
@@ -286,12 +291,12 @@ let createNewWarehouse = (data) => {
         let name = await getProvinceName(data.districtId)
         try {
             await db.Warehouse.create({
-                name: name,
+                name: data.name,
                 address: data.address,
                 phoneNumber: data.phoneNumber,
-                managerId: data.managerId,
-                capacity: data.capacity,
-                districtId: data.districtId
+                districtName: name.districtName,
+                provinceName: name.provinceName,
+                addressCoordinate: data.addressCoordinate
             })
             resolve({
                 errCode: 0,
@@ -326,8 +331,8 @@ let createOrder = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
             //create
-            if (data) {
-                await db.Order.create({
+            if (data.userId) {
+                let order = await db.Order.create({
                     userId: data.userId,
                     takeName: data.takeName,
                     takeAddress: data.takeAddress,
@@ -351,6 +356,13 @@ let createOrder = (data) => {
                     fee: data.fee,
                     status: 'S2'
                 })
+                const orderId = order.dataValues.id;
+
+                let History = await db.History.create({
+                    orderId: orderId,
+                    orderStatus: "Chưa tiếp nhận"
+                })
+                console.log(History)
                 resolve({
                     errCode: 0,
                     message: 'OK'
@@ -420,6 +432,76 @@ let getUserOrderReceptionService = () => {
     })
 }
 
+let updateProductStatus = (data) => {
+    return new Promise(async (resolve, reject) => {
+
+        try {
+            if (data.orderId && data.orderStatus) {
+                let status = await db.Allcode.findOne({
+                    where: {
+                        key: data.orderStatus
+                    }
+                })
+                await db.History.create({
+                    orderId: data.orderId,
+                    orderStatus: status.valueVi
+                })
+                resolve({
+                    errCode: 0,
+                    message: 'OK'
+                })
+            }
+            else {
+                resolve({
+                    errCode: 1,
+                    message: 'Missing parameters'
+                })
+            }
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
+let getOrderHistory = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let res = {}
+            let order = await db.History.findAll({
+                where: {
+                    orderId: id
+                }
+            });
+            if (order.length > 0) {
+                res.errCode = 0;
+                res.data = order
+
+                resolve(res)
+            }
+            else resolve({
+                errCode: 1,
+                message: 'Wrong Order Id'
+            })
+
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+let getAddressName = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let res = await getProvinceName(id)
+
+            resolve(res)
+
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
 module.exports = {
     handleUserLogin: handleUserLogin,
     getAllUsers: getAllUsers,
@@ -433,5 +515,8 @@ module.exports = {
     getFeeService: getFeeService,
     createOrder: createOrder,
     getUserOrderService: getUserOrderService,
-    getUserOrderReceptionService: getUserOrderReceptionService
+    getUserOrderReceptionService: getUserOrderReceptionService,
+    updateProductStatus: updateProductStatus,
+    getOrderHistory: getOrderHistory,
+    getAddressName: getAddressName
 }

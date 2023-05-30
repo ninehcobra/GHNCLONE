@@ -17,14 +17,14 @@ module.exports = {
             phoneNumber: {
                 type: Sequelize.STRING
             },
-            managerId: {
-                type: Sequelize.INTEGER
+            districtName: {
+                type: Sequelize.STRING
             },
-            capacity: {
-                type: Sequelize.INTEGER
+            provinceName: {
+                type: Sequelize.STRING
             },
-            districtId: {
-                type: Sequelize.INTEGER
+            addressCoordinate: {
+                type: Sequelize.JSON
             },
             createdAt: {
                 allowNull: false,
