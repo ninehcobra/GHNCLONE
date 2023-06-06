@@ -1,6 +1,6 @@
 import db from "../models"
 import bcrypt from 'bcryptjs';
-
+import { sendSimpleEmail } from "../services/emailService"
 
 var salt = bcrypt.genSaltSync(10);
 
@@ -126,7 +126,8 @@ let createNewUser = (data) => {
                     phoneNumber: data.phonenumber,
                     gender: data.gender,
                     roleId: data.roleid,
-                    image: data.image
+                    image: data.image,
+                    districtId: data.districtId
                 })
                 resolve({
                     errCode: 0,
@@ -354,7 +355,8 @@ let createOrder = (data) => {
                     noteOption: data.noteOption,
                     payOption: data.payOption,
                     fee: data.fee,
-                    status: 'S2'
+                    status: 'S2',
+                    warehouseId: data.warehouseId
                 })
                 const orderId = order.dataValues.id;
 
@@ -502,6 +504,108 @@ let getAddressName = (id) => {
     })
 }
 
+let getWarehouse = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await sendSimpleEmail('ttbexinhtt2903@gmail.com')
+            let res = {}
+            let warehouse = await db.Warehouse.findAll();
+            res.errCode = 0;
+            res.data = warehouse
+            resolve(res)
+
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
+let getNearestWarehouse = (orderCoordinates) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            const withinRadius = []; // Danh sách các kho hàng trong vòng bán kính
+            const maxDistance = 20; // Khoảng cách tối đa (20km)
+
+            let warehouse = await db.Warehouse.findAll();
+
+            // Tính toán khoảng cách từ đơn hàng đến các kho hàng
+            if (orderCoordinates.lat && orderCoordinates.lng) {
+                warehouse.forEach(warehouse => {
+                    const { lat, lng } = JSON.parse(warehouse.addressCoordinate);
+                    const distance = calculateDistance(orderCoordinates.lat, orderCoordinates.lng, lat, lng);
+
+                    let id = warehouse.id
+                    if (distance <= maxDistance) {
+                        withinRadius.push({ id, distance });
+                    }
+
+                });
+
+                if (withinRadius.length === 0) {
+                    resolve({
+                        errCode: 1,
+                        message: "No warehouse near there"
+                    }) // Không có kho hàng trong vòng bán kính
+                }
+
+                // Sắp xếp theo khoảng cách từ nhỏ đến lớn
+                withinRadius.sort((a, b) => a.distance - b.distance);
+
+                // Lấy kho hàng gần nhất
+                const nearestWarehouse = withinRadius[0].id;
+
+
+
+                resolve({
+                    errCode: 0,
+                    warehouseId: nearestWarehouse
+                })
+            }
+            else {
+
+                resolve({
+                    errCode: 1,
+                    message: 'Missing parameters'
+                })
+            }
+
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const earthRadius = 6371; // Bán kính trái đất (đơn vị: kilômét)
+
+    // Đổi độ sang radian
+    const lat1Rad = toRadians(lat1);
+    const lon1Rad = toRadians(lon1);
+    const lat2Rad = toRadians(lat2);
+    const lon2Rad = toRadians(lon2);
+
+    // Độ chênh lệch giữa hai tọa độ
+    const latDiff = lat2Rad - lat1Rad;
+    const lonDiff = lon2Rad - lon1Rad;
+
+    // Áp dụng công thức Haversine
+    const a =
+        Math.sin(latDiff / 2) ** 2 +
+        Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.sin(lonDiff / 2) ** 2;
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const distance = earthRadius * c;
+
+    return distance;
+}
+
+// Hàm chuyển đổi độ sang radian
+function toRadians(degree) {
+    return (degree * Math.PI) / 180;
+}
+
 module.exports = {
     handleUserLogin: handleUserLogin,
     getAllUsers: getAllUsers,
@@ -518,5 +622,7 @@ module.exports = {
     getUserOrderReceptionService: getUserOrderReceptionService,
     updateProductStatus: updateProductStatus,
     getOrderHistory: getOrderHistory,
-    getAddressName: getAddressName
+    getAddressName: getAddressName,
+    getWarehouse: getWarehouse,
+    getNearestWarehouse: getNearestWarehouse
 }

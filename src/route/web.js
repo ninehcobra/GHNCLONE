@@ -45,6 +45,12 @@ let initWebRoutes = (app) => {
 
     router.get("/api/get-address-name", userController.handleGetAddressName)
 
+    router.get("/api/get-warehouse", userController.handleGetWarehouse)
+
+    router.get("/api/get-nearest-warehouse", userController.handleGetNearestWarehouse)
+
+
+
 
 
     return app.use("/", router)

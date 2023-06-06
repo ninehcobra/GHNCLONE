@@ -1,5 +1,6 @@
 import userService from "../services/userService"
 
+
 let handleLogin = async (req, res) => {
     let email = req.body.email
     let password = req.body.password
@@ -191,6 +192,34 @@ let handleGetAddressName = async (req, res) => {
     }
 }
 
+let handleGetWarehouse = async (req, res) => {
+    try {
+        let data = await userService.getWarehouse();
+        return res.status(200).json(data)
+    } catch (error) {
+        console.log("Get Warehouse error:", error)
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server'
+        })
+    }
+}
+
+let handleGetNearestWarehouse = async (req, res) => {
+    try {
+        let data = await userService.getNearestWarehouse(req.query);
+        return res.status(200).json(data)
+    } catch (error) {
+        console.log("Get nearest Warehouse error:", error)
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server'
+        })
+    }
+}
+
+
+
 module.exports = {
     handleLogin: handleLogin,
     handleGetAllUser: handleGetAllUser,
@@ -207,5 +236,7 @@ module.exports = {
     handleGetOrderReception: handleGetOrderReception,
     handleUpdateProductStatus: handleUpdateProductStatus,
     handleGetOrderHistory: handleGetOrderHistory,
-    handleGetAddressName: handleGetAddressName
+    handleGetAddressName: handleGetAddressName,
+    handleGetWarehouse: handleGetWarehouse,
+    handleGetNearestWarehouse: handleGetNearestWarehouse
 }
