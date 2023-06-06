@@ -70,7 +70,7 @@ let sendSimpleEmail = async (data) => {
     <p>Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của chúng tôi. Đơn hàng của bạn đã được xác nhận và đã được gửi đi.</p>
     <p>Hãy kiểm tra email thường xuyên để cập nhật thông tin vận chuyển mới nhất.</p>
     <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua <a href="mailto:info@example.com">info@example.com</a>.</p>
-    <a class="button" href="/">Quay về trang chủ</a>
+    <a class="button" href="http://localhost:3000/home">Quay về trang chủ</a>
 </body>
 </html>
         `, // html body
