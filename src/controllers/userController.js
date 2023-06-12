@@ -75,7 +75,6 @@ let getProvince = async (req, res) => {
         return res.status(200).json(data)
 
     } catch (error) {
-        console.log("Get all code error:", error)
         return res.status(200).json({
             errCode: -1,
             message: 'Error from server'
@@ -88,7 +87,6 @@ let getDistrict = async (req, res) => {
         let data = await userService.getDistrictService(req.query.provinceId);
         return res.status(200).json(data)
     } catch (error) {
-        console.log("Get all code error:", error)
         return res.status(200).json({
             errCode: -1,
             message: 'Error from server'
@@ -130,7 +128,7 @@ let handleCreateOrder = async (req, res) => {
 
 let handleGetUserOrder = async (req, res) => {
     try {
-        let data = await userService.getUserOrderService(req.body.id);
+        let data = await userService.getUserOrderService(req.query);
         return res.status(200).json(data)
     } catch (error) {
         console.log("Get User order error:", error)
@@ -218,6 +216,19 @@ let handleGetNearestWarehouse = async (req, res) => {
     }
 }
 
+let handleGetProvinceByDistrict = async (req, res) => {
+    try {
+        let data = await userService.getProvinceByDistrict(req.query.id);
+        return res.status(200).json(data)
+    } catch (error) {
+        console.log("Get province by district error:", error)
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server'
+        })
+    }
+}
+
 
 
 module.exports = {
@@ -238,5 +249,6 @@ module.exports = {
     handleGetOrderHistory: handleGetOrderHistory,
     handleGetAddressName: handleGetAddressName,
     handleGetWarehouse: handleGetWarehouse,
-    handleGetNearestWarehouse: handleGetNearestWarehouse
+    handleGetNearestWarehouse: handleGetNearestWarehouse,
+    handleGetProvinceByDistrict: handleGetProvinceByDistrict
 }

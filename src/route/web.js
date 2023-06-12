@@ -28,6 +28,7 @@ let initWebRoutes = (app) => {
     router.get("/api/allcode", userController.getAllCode)
     router.get("/api/province", userController.getProvince)
     router.get("/api/district", userController.getDistrict)
+    router.get("/api/get-province-by-district", userController.handleGetProvinceByDistrict)
 
     router.post("/api/create-warehouse", userController.handleCreateNewWarehouse)
 

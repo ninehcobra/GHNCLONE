@@ -1,6 +1,7 @@
 import db from "../models"
 import bcrypt from 'bcryptjs';
 import { sendSimpleEmail } from "../services/emailService"
+import { Sequelize } from "sequelize";
 
 var salt = bcrypt.genSaltSync(10);
 
@@ -28,23 +29,29 @@ let handleUserLogin = (email, password) => {
                         email: email
                     }
                 })
-                if (user) {
-                    let check = await bcrypt.compareSync(password, user.password)
-                    if (check) {
-                        userData.errCode = 0;
-                        userData.errMessage = 'OK'
+                if (password) {
+                    if (user) {
+                        let check = await bcrypt.compareSync(password, user.password)
+                        if (check) {
+                            userData.errCode = 0;
+                            userData.errMessage = 'OK'
 
-                        delete user.password
-                        userData.user = user
+                            delete user.password
+                            userData.user = user
+                        }
+                        else {
+                            userData.errCode = 3;
+                            userData.errMessage = "Wrong password"
+                        }
                     }
                     else {
-                        userData.errCode = 3;
-                        userData.errMessage = "Wrong password"
+                        userData.errCode = 2
+                        userData.errMessage = "user is not found"
                     }
                 }
                 else {
-                    userData.errCode = 2
-                    userData.errMessage = "user is not found"
+                    userData.errCode = 1
+                    userData.errMessage = "Missing parameters"
                 }
             }
             else {
@@ -84,6 +91,12 @@ let getAllUsers = (userId) => {
                         exclude: ['password']
                     }
                 })
+                if (users) {
+                    users.errCode = 0
+                }
+                else {
+                    users.errCode = 1
+                }
             }
             if (userId && userId !== 'All') {
                 users = await db.User.findOne({
@@ -94,7 +107,14 @@ let getAllUsers = (userId) => {
                         exclude: ['password']
                     }
                 })
+                if (users) {
+                    users.errCode = 0
+                }
+                else {
+                    users.errCode = 1
+                }
             }
+
             resolve(users)
         } catch (error) {
             reject(error)
@@ -146,22 +166,31 @@ let createNewUser = (data) => {
 let deleteUser = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
-            let user = await db.User.findOne({ where: { id: id } })
-            if (!user) {
-                resolve({
-                    errCode: 2,
-                    message: `The user isn't exist`
-                })
+            if (id) {
+                let user = await db.User.findOne({ where: { id: id } })
+                if (!user) {
+                    resolve({
+                        errCode: 2,
+                        message: `The user isn't exist`
+                    })
+                }
+                else {
+                    await db.User.destroy({
+                        where: { id: id }
+                    })
+                    resolve({
+                        errCode: 0,
+                        message: 'The user is deleted'
+                    })
+                }
             }
             else {
-                await db.User.destroy({
-                    where: { id: id }
-                })
                 resolve({
-                    errCode: 0,
-                    message: 'The user is deleted'
+                    errCode: 1,
+                    message: 'Missing parameters'
                 })
             }
+
         } catch (error) {
             reject(error)
         }
@@ -173,7 +202,7 @@ let updateUserData = (data) => {
         try {
             if (!data.id || !data.roleid || !data.gender || !data.phonenumber) {
                 resolve({
-                    errCode: 2,
+                    errCode: 1,
                     message: "Missing required parameters"
                 })
             }
@@ -191,6 +220,9 @@ let updateUserData = (data) => {
                 if (data.image) {
                     user.image = data.image
                 }
+                if (data.districtId) {
+                    user.districtId = data.districtId
+                }
 
                 await user.save()
 
@@ -201,7 +233,7 @@ let updateUserData = (data) => {
             }
             else {
                 resolve({
-                    errCode: 1,
+                    errCode: 2,
                     message: "User not found"
                 })
             }
@@ -225,8 +257,15 @@ let getAllCodeService = (type) => {
                 let allcode = await db.Allcode.findAll({
                     where: { type: type }
                 });
-                res.errCode = 0;
-                res.data = allcode
+
+                if (allcode !== {}) {
+                    res.errCode = 0;
+                    res.data = allcode
+                }
+                else {
+                    res.errCode = 2;
+                    res.data = allcode
+                }
                 resolve(res)
             }
 
@@ -380,25 +419,33 @@ let createOrder = (data) => {
     })
 }
 
-let getUserOrderService = (id) => {
+let getUserOrderService = (info) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!id) {
+            if (!info.id && !info.status) {
                 resolve({
                     errCode: 1,
                     message: 'Missing required parameter!'
                 })
             } else {
 
+
                 let data = await db.User.findAll({
                     where: {
-                        id: id
+                        id: info.id
                     },
                     attributes: {
-                        exclude: ['password', 'image', 'id', 'email', 'firstName', 'lastName', 'address', 'phoneNumber', 'gender', 'roleId', 'positionId', 'createdAt', 'updatedAt']
+                        exclude: ['password', 'image', 'id', 'email', 'firstName', 'lastName', 'address', 'phoneNumber', 'gender', 'roleId', 'positionId', 'createdAt', 'updatedAt', 'districId']
                     },
                     include: [
-                        { model: db.Order, attributes: { exclude: 'imagePackage' } }
+                        {
+                            model: db.Order, where: {
+                                status: info.status,
+                                createdAt: {
+                                    [Sequelize.Op.between]: [info.startDate, info.endDate]
+                                }
+                            }, attributes: { exclude: 'imagePackage' }
+                        }
                     ],
                     raw: true,
                     nest: true
@@ -410,7 +457,7 @@ let getUserOrderService = (id) => {
                 })
             }
         } catch (error) {
-            reject(e)
+            reject(error)
         }
     })
 }
@@ -576,6 +623,26 @@ let getNearestWarehouse = (orderCoordinates) => {
     })
 }
 
+let getProvinceByDistrict = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let res = {}
+            let district = await db.District.findOne({
+                where: {
+                    id: id
+                }
+            });
+
+            res.errCode = 0;
+            res.provinceId = district.provinceId
+            resolve(res)
+
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
 function calculateDistance(lat1, lon1, lat2, lon2) {
     const earthRadius = 6371; // Bán kính trái đất (đơn vị: kilômét)
 
@@ -624,5 +691,6 @@ module.exports = {
     getOrderHistory: getOrderHistory,
     getAddressName: getAddressName,
     getWarehouse: getWarehouse,
-    getNearestWarehouse: getNearestWarehouse
+    getNearestWarehouse: getNearestWarehouse,
+    getProvinceByDistrict: getProvinceByDistrict
 }
