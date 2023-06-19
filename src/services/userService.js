@@ -673,6 +673,90 @@ function toRadians(degree) {
     return (degree * Math.PI) / 180;
 }
 
+let saveNew = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!data.contentHTML || !data.contentMarkdown || !data.header) {
+                resolve({
+                    errCode: 1,
+                    errMessage: "Missing parameters"
+                })
+            }
+            else {
+                await db.Markdown.create({
+                    contentHTML: data.contentHTML,
+                    contentMarkdown: data.contentMarkdown,
+                    header: data.header
+                })
+
+                resolve({
+                    errCode: 0,
+                    errMessage: 'save new success',
+                    data: '?'
+                })
+            }
+        } catch (e) {
+
+        }
+    })
+}
+
+let getNew = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!data.limit) {
+                resolve({
+                    errCode: 1,
+                    errMessage: "Missing parameters"
+                })
+            }
+            else {
+                let limit = parseInt(data.limit)
+                let res = await db.Markdown.findAll({
+                    limit: limit,
+                })
+
+                resolve({
+                    data: res,
+                    errCode: 0,
+                    errMessage: 'get data success'
+                })
+            }
+        } catch (e) {
+
+        }
+    })
+}
+
+let getNewById = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!data.id) {
+                resolve({
+                    errCode: 1,
+                    errMessage: "Missing parameters"
+                })
+            }
+            else {
+                let id = parseInt(data.id)
+                let res = await db.Markdown.findOne({
+                    where: {
+                        id: id
+                    }
+                })
+
+                resolve({
+                    data: res,
+                    errCode: 0,
+                    errMessage: 'get data success'
+                })
+            }
+        } catch (e) {
+
+        }
+    })
+}
+
 module.exports = {
     handleUserLogin: handleUserLogin,
     getAllUsers: getAllUsers,
@@ -692,5 +776,8 @@ module.exports = {
     getAddressName: getAddressName,
     getWarehouse: getWarehouse,
     getNearestWarehouse: getNearestWarehouse,
-    getProvinceByDistrict: getProvinceByDistrict
+    getProvinceByDistrict: getProvinceByDistrict,
+    saveNew: saveNew,
+    getNew: getNew,
+    getNewById: getNewById
 }

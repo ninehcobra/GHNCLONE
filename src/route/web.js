@@ -50,6 +50,12 @@ let initWebRoutes = (app) => {
 
     router.get("/api/get-nearest-warehouse", userController.handleGetNearestWarehouse)
 
+    router.post("/api/save-new", userController.handleSaveNew)
+
+    router.get("/api/get-new", userController.handleGetNew)
+
+    router.get("/api/get-new-by-id", userController.handleGetNewById)
+
 
 
 

@@ -229,6 +229,42 @@ let handleGetProvinceByDistrict = async (req, res) => {
     }
 }
 
+let handleSaveNew = async (req, res) => {
+    try {
+        let message = await userService.saveNew(req.body);
+        return res.status(200).json(message)
+    } catch (error) {
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server'
+        })
+    }
+}
+
+let handleGetNew = async (req, res) => {
+    try {
+        let message = await userService.getNew(req.query);
+        return res.status(200).json(message)
+    } catch (error) {
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server'
+        })
+    }
+}
+
+let handleGetNewById = async (req, res) => {
+    try {
+        let message = await userService.getNewById(req.query);
+        return res.status(200).json(message)
+    } catch (error) {
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server'
+        })
+    }
+}
+
 
 
 module.exports = {
@@ -250,5 +286,8 @@ module.exports = {
     handleGetAddressName: handleGetAddressName,
     handleGetWarehouse: handleGetWarehouse,
     handleGetNearestWarehouse: handleGetNearestWarehouse,
-    handleGetProvinceByDistrict: handleGetProvinceByDistrict
+    handleGetProvinceByDistrict: handleGetProvinceByDistrict,
+    handleSaveNew: handleSaveNew,
+    handleGetNew: handleGetNew,
+    handleGetNewById: handleGetNewById
 }
