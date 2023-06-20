@@ -551,15 +551,38 @@ let getAddressName = (id) => {
     })
 }
 
-let getWarehouse = () => {
+let getWarehouse = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
-            await sendSimpleEmail('ttbexinhtt2903@gmail.com')
-            let res = {}
-            let warehouse = await db.Warehouse.findAll();
-            res.errCode = 0;
-            res.data = warehouse
-            resolve(res)
+            // await sendSimpleEmail('ttbexinhtt2903@gmail.com')
+            if (id) {
+                let res = {}
+                let warehouse = []
+
+
+                if (id === 'All') { warehouse = await db.Warehouse.findAll(); }
+                else {
+                    let name = await getProvinceName(id)
+                    warehouse = await db.Warehouse.findAll(
+                        {
+                            where: {
+                                districtName: name.districtName
+                            }
+                        }
+                    );
+                }
+                res.errCode = 0;
+                res.data = warehouse
+                resolve(res)
+            }
+
+            else {
+                resolve({
+                    errCode: 1,
+                    message: 'missing parameters'
+                })
+            }
+
 
         } catch (error) {
             reject(error)

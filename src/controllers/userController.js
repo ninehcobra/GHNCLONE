@@ -192,7 +192,7 @@ let handleGetAddressName = async (req, res) => {
 
 let handleGetWarehouse = async (req, res) => {
     try {
-        let data = await userService.getWarehouse();
+        let data = await userService.getWarehouse(req.query.id);
         return res.status(200).json(data)
     } catch (error) {
         console.log("Get Warehouse error:", error)
