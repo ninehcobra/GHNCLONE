@@ -267,6 +267,8 @@ let handleGetNewById = async (req, res) => {
 
 
 
+
+
 module.exports = {
     handleLogin: handleLogin,
     handleGetAllUser: handleGetAllUser,
@@ -289,5 +291,6 @@ module.exports = {
     handleGetProvinceByDistrict: handleGetProvinceByDistrict,
     handleSaveNew: handleSaveNew,
     handleGetNew: handleGetNew,
-    handleGetNewById: handleGetNewById
+    handleGetNewById: handleGetNewById,
+
 }

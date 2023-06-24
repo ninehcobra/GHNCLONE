@@ -60,6 +60,8 @@ let initWebRoutes = (app) => {
 
 
 
+
+
     return app.use("/", router)
 }
 

@@ -329,6 +329,10 @@ let getProvinceName = async (id) => {
 let createNewWarehouse = (data) => {
     return new Promise(async (resolve, reject) => {
         let name = await getProvinceName(data.districtId)
+        let arrWareHouse = await getWarehouse('All').data
+        let isValid = true
+
+
         try {
             await db.Warehouse.create({
                 name: data.name,
@@ -336,7 +340,8 @@ let createNewWarehouse = (data) => {
                 phoneNumber: data.phoneNumber,
                 districtName: name.districtName,
                 provinceName: name.provinceName,
-                addressCoordinate: data.addressCoordinate
+                addressCoordinate: data.addressCoordinate,
+                staffId: data.staffId
             })
             resolve({
                 errCode: 0,
@@ -349,7 +354,8 @@ let createNewWarehouse = (data) => {
         } catch (error) {
             reject(error)
         }
-    })
+    }
+    )
 }
 
 let getFeeService = () => {
@@ -428,33 +434,57 @@ let getUserOrderService = (info) => {
                     message: 'Missing required parameter!'
                 })
             } else {
+                if (info.startDate && info.endDate) {
+                    let data = await db.User.findAll({
+                        where: {
+                            id: info.id
+                        },
+                        attributes: {
+                            exclude: ['password', 'image', 'id', 'email', 'firstName', 'lastName', 'address', 'phoneNumber', 'gender', 'roleId', 'positionId', 'createdAt', 'updatedAt', 'districId']
+                        },
+                        include: [
+                            {
+                                model: db.Order, where: {
+                                    status: info.status,
+                                    createdAt: {
+                                        [Sequelize.Op.between]: [info.startDate, info.endDate]
+                                    }
+                                }, attributes: { exclude: 'imagePackage' }
+                            }
+                        ],
+                        raw: true,
+                        nest: true
+                    })
 
+                    resolve({
+                        errCode: 0,
+                        data: data
+                    })
+                }
+                else {
+                    let data = await db.User.findAll({
+                        where: {
+                            id: info.id
+                        },
+                        attributes: {
+                            exclude: ['password', 'image', 'id', 'email', 'firstName', 'lastName', 'address', 'phoneNumber', 'gender', 'roleId', 'positionId', 'createdAt', 'updatedAt', 'districId']
+                        },
+                        include: [
+                            {
+                                model: db.Order, where: {
+                                    status: info.status
+                                }, attributes: { exclude: 'imagePackage' }
+                            }
+                        ],
+                        raw: true,
+                        nest: true
+                    })
 
-                let data = await db.User.findAll({
-                    where: {
-                        id: info.id
-                    },
-                    attributes: {
-                        exclude: ['password', 'image', 'id', 'email', 'firstName', 'lastName', 'address', 'phoneNumber', 'gender', 'roleId', 'positionId', 'createdAt', 'updatedAt', 'districId']
-                    },
-                    include: [
-                        {
-                            model: db.Order, where: {
-                                status: info.status,
-                                createdAt: {
-                                    [Sequelize.Op.between]: [info.startDate, info.endDate]
-                                }
-                            }, attributes: { exclude: 'imagePackage' }
-                        }
-                    ],
-                    raw: true,
-                    nest: true
-                })
-
-                resolve({
-                    errCode: 0,
-                    data: data
-                })
+                    resolve({
+                        errCode: 0,
+                        data: data
+                    })
+                }
             }
         } catch (error) {
             reject(error)

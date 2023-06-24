@@ -19,7 +19,8 @@ module.exports = (sequelize, DataTypes) => {
         phoneNumber: DataTypes.STRING,
         districtName: DataTypes.STRING,
         provinceName: DataTypes.STRING,
-        addressCoordinate: DataTypes.JSON
+        addressCoordinate: DataTypes.JSON,
+        staffId: DataTypes.INTEGER
     }, {
         sequelize,
         modelName: 'Warehouse',

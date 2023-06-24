@@ -26,6 +26,9 @@ module.exports = {
             addressCoordinate: {
                 type: Sequelize.JSON
             },
+            staffId: {
+                type: Sequelize.INTEGER
+            },
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE
