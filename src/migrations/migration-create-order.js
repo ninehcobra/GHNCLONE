@@ -83,6 +83,9 @@ module.exports = {
             warehouseId: {
                 type: Sequelize.INTEGER
             },
+            staffId: {
+                type: Sequelize.INTEGER
+            },
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE

@@ -197,6 +197,40 @@ let deleteUser = (id) => {
     })
 }
 
+let deleteWareHouse = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (id) {
+                let warehouse = await db.Warehouse.findOne({ where: { id: id } })
+                if (!warehouse) {
+                    resolve({
+                        errCode: 2,
+                        message: `The warehouse isn't exist`
+                    })
+                }
+                else {
+                    await db.Warehouse.destroy({
+                        where: { id: id }
+                    })
+                    resolve({
+                        errCode: 0,
+                        message: 'The warehouse is deleted'
+                    })
+                }
+            }
+            else {
+                resolve({
+                    errCode: 1,
+                    message: 'Missing parameters'
+                })
+            }
+
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
 let updateUserData = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -222,6 +256,15 @@ let updateUserData = (data) => {
                 }
                 if (data.districtId) {
                     user.districtId = data.districtId
+                }
+                if (data.warehouseId) {
+                    if (data.warehouseId === -1) {
+                        user.warehouseId = null
+                    }
+                    else {
+                        user.warehouseId = data.warehouseId
+                    }
+
                 }
 
                 await user.save()
@@ -326,6 +369,8 @@ let getProvinceName = async (id) => {
     return res
 }
 
+
+
 let createNewWarehouse = (data) => {
     return new Promise(async (resolve, reject) => {
         let name = await getProvinceName(data.districtId)
@@ -334,7 +379,7 @@ let createNewWarehouse = (data) => {
 
 
         try {
-            await db.Warehouse.create({
+            let res = await db.Warehouse.create({
                 name: data.name,
                 address: data.address,
                 phoneNumber: data.phoneNumber,
@@ -343,12 +388,24 @@ let createNewWarehouse = (data) => {
                 addressCoordinate: data.addressCoordinate,
                 staffId: data.staffId
             })
+
+            let staff = await db.User.findOne({
+                where: {
+                    id: parseInt(data.staffId)
+                },
+                raw: false
+            })
+            staff.warehouseId = res.dataValues.id
+
+
+            await staff.save()
+
+
+
             resolve({
                 errCode: 0,
                 message: 'OK'
             })
-
-
 
 
         } catch (error) {
@@ -492,13 +549,14 @@ let getUserOrderService = (info) => {
     })
 }
 
-let getUserOrderReceptionService = () => {
+let getUserOrderReceptionService = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
             let res = {}
             let order = await db.Order.findAll({
                 where: {
-                    status: 'S2'
+                    status: 'S2',
+                    warehouseId: id
                 }
             });
             res.errCode = 0;
@@ -739,7 +797,8 @@ let saveNew = (data) => {
                 await db.Markdown.create({
                     contentHTML: data.contentHTML,
                     contentMarkdown: data.contentMarkdown,
-                    header: data.header
+                    header: data.header,
+                    banner: data.banner
                 })
 
                 resolve({
@@ -810,6 +869,71 @@ let getNewById = (data) => {
     })
 }
 
+let getProvinceId = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let province = await db.Province.findOne({
+                where: {
+                    name: data.provinceName
+                }
+            });
+            resolve({
+                data: province.id,
+                errCode: 0,
+                message: 'OK'
+            })
+        } catch (e) {
+            reject({
+                errCode: 1,
+                message: 'Error from sever'
+            })
+        }
+    })
+}
+
+let updateWarehouseData = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!data.id || !data.name
+                || !data.phoneNumber || !data.districtName || !data.provinceName || !data.staffId) {
+                resolve({
+                    errCode: 1,
+                    message: "Missing required parameters"
+                })
+            }
+            let warehouse = await db.Warehouse.findOne({
+                where: { id: data.id },
+                raw: false
+            })
+            if (warehouse) {
+                warehouse.name = data.name
+                warehouse.address = data.address
+                warehouse.phoneNumber = data.phoneNumber
+                warehouse.districtName = data.districtName
+                warehouse.provinceName = data.provinceName
+                warehouse.addressCoordinate = data.addressCoordinate
+                warehouse.staffId = data.staffId
+
+                await warehouse.save()
+
+                resolve({
+                    errCode: 0,
+                    message: "Update warehouse succeed!!!"
+                })
+            }
+            else {
+                resolve({
+                    errCode: 2,
+                    message: "Warehouse not found"
+                })
+            }
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
+
 module.exports = {
     handleUserLogin: handleUserLogin,
     getAllUsers: getAllUsers,
@@ -832,5 +956,8 @@ module.exports = {
     getProvinceByDistrict: getProvinceByDistrict,
     saveNew: saveNew,
     getNew: getNew,
-    getNewById: getNewById
+    getNewById: getNewById,
+    getProvinceId: getProvinceId,
+    updateWarehouseData: updateWarehouseData,
+    deleteWareHouse: deleteWareHouse
 }

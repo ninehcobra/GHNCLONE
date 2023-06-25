@@ -50,6 +50,19 @@ let handleDeleteUser = async (req, res) => {
     }
 }
 
+let handleDeleteWarehouse = async (req, res) => {
+    if (!req.body.id) {
+        return res.status(200).json({
+            errCode: 1,
+            errMessage: "Missing required parameters"
+        })
+    }
+    else {
+        let message = await userService.deleteWareHouse(req.body.id)
+        return res.status(200).json(message)
+    }
+}
+
 let handleEditUser = async (req, res) => {
     let data = req.body;
     let message = await userService.updateUserData(data)
@@ -141,7 +154,7 @@ let handleGetUserOrder = async (req, res) => {
 
 let handleGetOrderReception = async (req, res) => {
     try {
-        let data = await userService.getUserOrderReceptionService();
+        let data = await userService.getUserOrderReceptionService(req.query.id);
         return res.status(200).json(data)
     } catch (error) {
         console.log("Get order reception error:", error)
@@ -265,9 +278,23 @@ let handleGetNewById = async (req, res) => {
     }
 }
 
+let handlegetProvinceId = async (req, res) => {
+    try {
+        let message = await userService.getProvinceId(req.query);
+        return res.status(200).json(message)
+    } catch (error) {
+        return res.status(200).json({
+            errCode: -1,
+            message: 'Error from server'
+        })
+    }
+}
 
-
-
+let handleEditWarehouse = async (req, res) => {
+    let data = req.body;
+    let message = await userService.updateWarehouseData(data)
+    return res.status(200).json(message)
+}
 
 module.exports = {
     handleLogin: handleLogin,
@@ -292,5 +319,8 @@ module.exports = {
     handleSaveNew: handleSaveNew,
     handleGetNew: handleGetNew,
     handleGetNewById: handleGetNewById,
+    handlegetProvinceId: handlegetProvinceId,
+    handleEditWarehouse: handleEditWarehouse,
+    handleDeleteWarehouse: handleDeleteWarehouse
 
 }

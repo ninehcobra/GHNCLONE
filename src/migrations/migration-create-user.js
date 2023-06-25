@@ -41,6 +41,9 @@ module.exports = {
       districtId: {
         type: Sequelize.STRING
       },
+      warehouseId: {
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

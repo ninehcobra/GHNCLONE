@@ -27,10 +27,15 @@ let initWebRoutes = (app) => {
 
     router.get("/api/allcode", userController.getAllCode)
     router.get("/api/province", userController.getProvince)
+    router.get("/api/get-province-id", userController.handlegetProvinceId)
+
     router.get("/api/district", userController.getDistrict)
     router.get("/api/get-province-by-district", userController.handleGetProvinceByDistrict)
 
+    router.delete("/api/delete-warehouse", userController.handleDeleteWarehouse)
     router.post("/api/create-warehouse", userController.handleCreateNewWarehouse)
+    router.put("/api/edit-warehouse", userController.handleEditWarehouse)
+
 
 
 

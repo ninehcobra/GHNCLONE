@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     };
     Markdown.init({
+        banner: DataTypes.STRING,
         contentHTML: DataTypes.TEXT('long'),
         contentMarkdown: DataTypes.TEXT('long'),
         header: DataTypes.TEXT('long')

@@ -8,6 +8,9 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
+            banner: {
+                type: Sequelize.STRING
+            },
             contentHTML: {
                 allowNull: false,
                 type: Sequelize.TEXT('long')
