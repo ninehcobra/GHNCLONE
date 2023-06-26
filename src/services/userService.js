@@ -458,7 +458,8 @@ let createOrder = (data) => {
                     payOption: data.payOption,
                     fee: data.fee,
                     status: 'S2',
-                    warehouseId: data.warehouseId
+                    warehouseId: data.warehouseId,
+                    recWarehouseId: data.recWarehouseId
                 })
                 const orderId = order.dataValues.id;
 
@@ -485,64 +486,78 @@ let createOrder = (data) => {
 let getUserOrderService = (info) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!info.id && !info.status) {
-                resolve({
-                    errCode: 1,
-                    message: 'Missing required parameter!'
+            if (info.staffId) {
+                let res = await db.Order.findAll({
+                    where: {
+                        staffId: info.staffId
+                    }
                 })
-            } else {
-                if (info.startDate && info.endDate) {
-                    let data = await db.User.findAll({
-                        where: {
-                            id: info.id
-                        },
-                        attributes: {
-                            exclude: ['password', 'image', 'id', 'email', 'firstName', 'lastName', 'address', 'phoneNumber', 'gender', 'roleId', 'positionId', 'createdAt', 'updatedAt', 'districId']
-                        },
-                        include: [
-                            {
-                                model: db.Order, where: {
-                                    status: info.status,
-                                    createdAt: {
-                                        [Sequelize.Op.between]: [info.startDate, info.endDate]
-                                    }
-                                }, attributes: { exclude: 'imagePackage' }
-                            }
-                        ],
-                        raw: true,
-                        nest: true
-                    })
-
+                resolve({
+                    data: res,
+                    errCode: 0
+                })
+            }
+            else {
+                if (!info.id && !info.status) {
                     resolve({
-                        errCode: 0,
-                        data: data
+                        errCode: 1,
+                        message: 'Missing required parameter!'
                     })
-                }
-                else {
-                    let data = await db.User.findAll({
-                        where: {
-                            id: info.id
-                        },
-                        attributes: {
-                            exclude: ['password', 'image', 'id', 'email', 'firstName', 'lastName', 'address', 'phoneNumber', 'gender', 'roleId', 'positionId', 'createdAt', 'updatedAt', 'districId']
-                        },
-                        include: [
-                            {
-                                model: db.Order, where: {
-                                    status: info.status
-                                }, attributes: { exclude: 'imagePackage' }
-                            }
-                        ],
-                        raw: true,
-                        nest: true
-                    })
+                } else {
+                    if (info.startDate && info.endDate) {
+                        let data = await db.User.findAll({
+                            where: {
+                                id: info.id
+                            },
+                            attributes: {
+                                exclude: ['password', 'image', 'id', 'email', 'firstName', 'lastName', 'address', 'phoneNumber', 'gender', 'roleId', 'positionId', 'createdAt', 'updatedAt', 'districId']
+                            },
+                            include: [
+                                {
+                                    model: db.Order, where: {
+                                        status: info.status,
+                                        createdAt: {
+                                            [Sequelize.Op.between]: [info.startDate, info.endDate]
+                                        }
+                                    }, attributes: { exclude: 'imagePackage' }
+                                }
+                            ],
+                            raw: true,
+                            nest: true
+                        })
 
-                    resolve({
-                        errCode: 0,
-                        data: data
-                    })
+                        resolve({
+                            errCode: 0,
+                            data: data
+                        })
+                    }
+                    else {
+                        let data = await db.User.findAll({
+                            where: {
+                                id: info.id
+                            },
+                            attributes: {
+                                exclude: ['password', 'image', 'id', 'email', 'firstName', 'lastName', 'address', 'phoneNumber', 'gender', 'roleId', 'positionId', 'createdAt', 'updatedAt', 'districId']
+                            },
+                            include: [
+                                {
+                                    model: db.Order, where: {
+                                        status: info.status
+                                    }, attributes: { exclude: 'imagePackage' }
+                                }
+                            ],
+                            raw: true,
+                            nest: true
+                        })
+
+                        resolve({
+                            errCode: 0,
+                            data: data
+                        })
+                    }
                 }
             }
+
         } catch (error) {
             reject(error)
         }
@@ -581,8 +596,20 @@ let updateProductStatus = (data) => {
                 })
                 await db.History.create({
                     orderId: data.orderId,
-                    orderStatus: status.valueVi
+                    orderStatus: status.valueVi,
+                    staffId: data.staffId,
                 })
+
+                let order = await db.Order.findOne({
+                    where: {
+                        id: data.orderId
+                    },
+                    raw: false
+                })
+
+                order.status = data.orderStatus
+                await order.save()
+
                 resolve({
                     errCode: 0,
                     message: 'OK'
@@ -928,7 +955,121 @@ let updateWarehouseData = (data) => {
                 })
             }
         } catch (error) {
-            reject(error)
+            reject({
+                errCode: 1,
+                message: 'Error from sever'
+            })
+        }
+    })
+}
+
+let setOrderStaff = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let res = {}
+            if (!data && !data.orderId && !data.staffId) {
+
+                res.errCode = 1
+                res.message = 'Missing parameters'
+
+            }
+            else {
+                let order = await db.Order.findOne({
+                    where: {
+                        id: data.orderId
+                    },
+                    raw: false
+                })
+                order.staffId = data.staffId === '0' ? '' : data.staffId
+                order.status = 'S13'
+
+                await updateProductStatus(
+                    {
+                        orderId: order.id,
+                        orderStatus: order.status,
+                        staffId: order.staffId
+                    }
+                )
+                await order.save()
+                res.errCode = 0
+                res.message = 'ok'
+
+            }
+            resolve(res)
+
+        } catch (error) {
+            reject({
+                errCode: 1,
+                message: 'Error from sever'
+            })
+        }
+    })
+}
+
+let getStaffHistory = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let res = {}
+            if (!data.staffId) {
+                res.errCode = 1
+                res.message = 'Missing parameters'
+            }
+            else {
+                let history = []
+                if (data.staffId === 'All') {
+                    history = await db.History.findAll({
+
+                    })
+                }
+                else {
+                    history = await db.History.findAll({
+                        where: {
+                            staffId: data.staffId
+                        }
+                    })
+                }
+
+                res.data = history
+                res.errCode = 0
+                res.message = 'Ok'
+            }
+            resolve(res)
+
+        } catch (error) {
+            reject({
+                errCode: 1,
+                message: 'Error from sever'
+            })
+        }
+    })
+}
+
+let getOrderDetail = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let res = {}
+            if (!data.id) {
+                res.errCode = 1
+                res.message = 'Missing parameters'
+            }
+            else {
+                let order = await db.Order.findOne({
+                    where: {
+                        id: data.id
+                    }
+                })
+
+                res.data = order
+                res.errCode = 0
+                res.message = 'Ok'
+            }
+            resolve(res)
+
+        } catch (error) {
+            reject({
+                errCode: 1,
+                message: 'Error from sever'
+            })
         }
     })
 }
@@ -959,5 +1100,8 @@ module.exports = {
     getNewById: getNewById,
     getProvinceId: getProvinceId,
     updateWarehouseData: updateWarehouseData,
-    deleteWareHouse: deleteWareHouse
+    deleteWareHouse: deleteWareHouse,
+    setOrderStaff: setOrderStaff,
+    getStaffHistory: getStaffHistory,
+    getOrderDetail: getOrderDetail
 }

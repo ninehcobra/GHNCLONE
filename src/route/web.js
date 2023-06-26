@@ -40,14 +40,18 @@ let initWebRoutes = (app) => {
 
 
     router.get("/api/fee", userController.getFee)
-    router.post("/api/create-order", userController.handleCreateOrder)
 
+    router.post("/api/create-order", userController.handleCreateOrder)
     router.get("/api/get-user-order", userController.handleGetUserOrder)
+    router.get("/api/get-order-detail", userController.handleGetOrderDetail)
 
     router.get("/api/get-order-reception", userController.handleGetOrderReception)
+    router.get("/api/set-order-staff", userController.handleSetOrderStaff)
 
     router.post("/api/update-product-status", userController.handleUpdateProductStatus)
+
     router.get("/api/get-order-history", userController.handleGetOrderHistory)
+    router.get("/api/get-staff-history", userController.handleGetStaffHistory)
 
     router.get("/api/get-address-name", userController.handleGetAddressName)
 

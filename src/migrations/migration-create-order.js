@@ -83,6 +83,9 @@ module.exports = {
             warehouseId: {
                 type: Sequelize.INTEGER
             },
+            recWarehouseId: {
+                type: Sequelize.INTEGER
+            },
             staffId: {
                 type: Sequelize.INTEGER
             },
