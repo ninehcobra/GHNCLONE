@@ -2,6 +2,7 @@ import db from "../models"
 import bcrypt from 'bcryptjs';
 import { sendSimpleEmail } from "../services/emailService"
 import { Sequelize } from "sequelize";
+const { Op } = require("sequelize")
 
 var salt = bcrypt.genSaltSync(10);
 
@@ -1074,6 +1075,132 @@ let getOrderDetail = (data) => {
     })
 }
 
+let getStaffWarehouseName = async (staffId) => {
+    let res = await db.User.findOne({
+        where: {
+            id: staffId
+        }
+    })
+
+    let warehouse = await db.Warehouse.findOne({
+        where: {
+            id: res.warehouseId
+        }
+    })
+
+    return warehouse.name
+}
+
+let staffSetOrder = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (data.id && data.status && data.payOption && data.staffId) {
+                let existingOrder = await db.Order.findOne({
+                    where: {
+                        id: data.id
+                    },
+                    raw: false
+                });
+                if (data.status === 'S13') {
+                    existingOrder.status = 'S14'
+
+                    await existingOrder.save()
+
+                    await db.History.create({
+                        orderId: data.id,
+                        orderStatus: "Đang lấy hàng",
+                        staffId: data.staffId
+                    })
+
+                    resolve({
+                        errCode: 0,
+                        message: 'Ok'
+                    });
+
+
+
+                }
+                else if (data.status === 'S14') {
+                    if (data.payOption === 'P1') {
+                        existingOrder.payOption = 'P3'
+                    }
+
+                    existingOrder.status = 'S3'
+                    await existingOrder.save()
+
+                    let user = await db.User.findOne({
+                        where: {
+                            id: data.staffId
+                        }
+                    })
+
+                    let warehouse = await db.Warehouse.findOne({
+                        where: {
+                            id: user.warehouseId
+                        }
+                    })
+
+
+
+                    await db.History.create({
+                        orderId: data.id,
+                        orderStatus: `Đã giao đến ${await warehouse.name}`,
+                        staffId: data.staffId
+                    })
+
+
+                    resolve({
+                        errCode: 0,
+                        message: 'Ok'
+                    });
+
+
+
+                }
+
+            }
+            else {
+                resolve({
+                    errCode: 1,
+                    message: 'Missing parameters'
+                });
+            }
+
+
+        } catch (error) {
+            reject({
+                errCode: 1,
+                message: 'Error from sever'
+            })
+        }
+    })
+}
+
+let getWarehouseOrder = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let res = {}
+            let order = await db.Order.findAll({
+                where: {
+                    [Op.or]: [
+                        { warehouseId: id },
+                        { recWarehouseId: id }
+                    ]
+                }
+            });
+
+
+            res.errCode = 0;
+            res.data = order
+
+            resolve(res)
+
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
 
 module.exports = {
     handleUserLogin: handleUserLogin,
@@ -1103,5 +1230,8 @@ module.exports = {
     deleteWareHouse: deleteWareHouse,
     setOrderStaff: setOrderStaff,
     getStaffHistory: getStaffHistory,
-    getOrderDetail: getOrderDetail
+    getOrderDetail: getOrderDetail,
+    staffSetOrder: staffSetOrder,
+    getStaffWarehouseName: getStaffWarehouseName,
+    getWarehouseOrder: getWarehouseOrder
 }

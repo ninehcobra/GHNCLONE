@@ -319,6 +319,21 @@ let handleGetOrderDetail = async (req, res) => {
     let message = await userService.getOrderDetail(data)
     return res.status(200).json(message)
 
+}
+
+let handleStaffSetOrder = async (req, res) => {
+
+    let data = req.body;
+    let message = await userService.staffSetOrder(data)
+    return res.status(200).json(message)
+
+}
+
+let handleGetWarehouseOrder = async (req, res) => {
+
+    let data = req.query.id;
+    let message = await userService.getWarehouseOrder(data)
+    return res.status(200).json(message)
 
 }
 
@@ -350,5 +365,7 @@ module.exports = {
     handleDeleteWarehouse: handleDeleteWarehouse,
     handleSetOrderStaff: handleSetOrderStaff,
     handleGetStaffHistory: handleGetStaffHistory,
-    handleGetOrderDetail: handleGetOrderDetail
+    handleGetOrderDetail: handleGetOrderDetail,
+    handleStaffSetOrder: handleStaffSetOrder,
+    handleGetWarehouseOrder: handleGetWarehouseOrder
 }

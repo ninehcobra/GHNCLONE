@@ -44,11 +44,14 @@ let initWebRoutes = (app) => {
     router.post("/api/create-order", userController.handleCreateOrder)
     router.get("/api/get-user-order", userController.handleGetUserOrder)
     router.get("/api/get-order-detail", userController.handleGetOrderDetail)
+    router.post("/api/staff-set-order", userController.handleStaffSetOrder)
 
     router.get("/api/get-order-reception", userController.handleGetOrderReception)
     router.get("/api/set-order-staff", userController.handleSetOrderStaff)
 
     router.post("/api/update-product-status", userController.handleUpdateProductStatus)
+
+    router.get("/api/get-warehouse-order", userController.handleGetWarehouseOrder)
 
     router.get("/api/get-order-history", userController.handleGetOrderHistory)
     router.get("/api/get-staff-history", userController.handleGetStaffHistory)
