@@ -1158,6 +1158,119 @@ let staffSetOrder = (data) => {
 
                 }
 
+                else if (data.status === 'S3') {
+
+                    existingOrder.status = 'S16'
+                    await existingOrder.save()
+
+                    let user = await db.User.findOne({
+                        where: {
+                            id: data.staffId
+                        }
+                    })
+
+                    let warehouse = await db.Warehouse.findOne({
+                        where: {
+                            id: existingOrder.recWarehouseId
+                        }
+                    })
+
+
+
+                    await db.History.create({
+                        orderId: data.id,
+                        orderStatus: `Đang giao đến ${await warehouse.name}`,
+                        staffId: data.staffId
+                    })
+
+
+                    resolve({
+                        errCode: 0,
+                        message: 'Ok'
+                    });
+
+
+
+                }
+
+                else if (data.status === 'S16') {
+
+                    existingOrder.status = 'S15'
+                    await existingOrder.save()
+
+                    let user = await db.User.findOne({
+                        where: {
+                            id: data.staffId
+                        }
+                    })
+
+                    let warehouse = await db.Warehouse.findOne({
+                        where: {
+                            id: existingOrder.recWarehouseId
+                        }
+                    })
+
+
+
+                    await db.History.create({
+                        orderId: data.id,
+                        orderStatus: `Đã giao đến ${await warehouse.name}`,
+                        staffId: data.staffId
+                    })
+
+
+                    resolve({
+                        errCode: 0,
+                        message: 'Ok'
+                    });
+
+
+
+                }
+
+                else if (data.status === 'S15') {
+
+                    existingOrder.status = 'S4'
+                    existingOrder.staffId = data.staffId
+                    await existingOrder.save()
+
+
+                    await db.History.create({
+                        orderId: data.id,
+                        orderStatus: `Đang giao hàng`,
+                        staffId: data.staffId
+                    })
+
+                    resolve({
+                        errCode: 0,
+                        message: 'Ok'
+                    });
+
+
+                }
+                else if (data.status === 'S4') {
+                    if (data.payOption === 'P2') {
+                        existingOrder.payOption = 'P3'
+                    }
+                    existingOrder.status = 'S5'
+                    existingOrder.staffId = data.staffId
+                    await existingOrder.save()
+
+
+                    await db.History.create({
+                        orderId: data.id,
+                        orderStatus: `Giao hàng thành công`,
+                        staffId: data.staffId
+                    })
+
+                    resolve({
+                        errCode: 0,
+                        message: 'Ok'
+                    });
+
+
+                }
+
             }
             else {
                 resolve({
